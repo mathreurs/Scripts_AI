@@ -84,7 +84,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.5, max_num_hands=2)
 
 # palavras que serão detectadas e comparadas de acordo com a ordem
-labels_dict = {0: 'Oi', 1: 'B', 2: 'C', 3:'D', 4:'E'}
+labels_dict = {0: 'Oi', 1: 'Meu', 2: 'Nome', 3:'Matheus', 4:'Faz o L'}
 
 # Create more natural speaking phrases in Portuguese
 def format_speech_text(detected_signs):
