@@ -4,7 +4,7 @@ import numpy as np # faz os calculos de média e de margem de erro nas análises
 import pickle # formato de arquivo onde os dados são salvos  e analizados
 import pyttsx3 # Voz que fala qual sinal está sendo analizado
 import time # contagem de tempo entre a fala e a analize das imagens
-from threading import Thread # Verificador para a voz 
+from threading import Thread # Executar a voz enquanto roda as imagens n tela
 from queue import Queue # lista de sinais que foram analizados recentemente
 
 # Inicializa a varivel que irá controlar a voz
