@@ -1,35 +1,34 @@
-import cv2
 import mediapipe as mp
+import cv2
 import numpy as np
 import pickle
 import pyttsx3
 import time
 from threading import Thread
 from queue import Queue
-import threading
 
-# Initialize text-to-speech engine
+# Inicializa a varivel que irá controlar a voz
 engine = pyttsx3.init()
 
-# Get available voices and set to Portuguese voice
+# instancia a variavel de voz
 voices = engine.getProperty('voices')
 portuguese_voice = None
 for voice in voices:
-    # Look for Portuguese or Brazilian voice
+    # Transforma a voz em uma voz em portugues
     if "portuguese" in voice.name.lower() or "brazil" in voice.name.lower():
         portuguese_voice = voice
         break
 
-# Set voice properties
+# faz a voz ser em portugues, caso não consiga fazer ela pega a voz padrao da biblioteca
 if portuguese_voice:
     engine.setProperty('voice', portuguese_voice.id)
 else:
     print("Aviso: Voz em português não encontrada. Usando voz padrão.")
 
-# Optimize voice settings for Portuguese
-engine.setProperty('rate', 110)      # Ajuste de velocidade de fala
+# Otimiza a voz
+engine.setProperty('rate', 200)      # Ajuste de velocidade de fala
 engine.setProperty('volume', 1)      # Volume
-engine.setProperty('pitch', 100)      # Ajuste para tornar fala mais clara
+engine.setProperty('pitch', 150)     # Ajuste para tornar fala mais clara
 
 # Cria uma fila para dizer o que foi detectado
 speech_queue = Queue()
@@ -67,15 +66,19 @@ def speak_text(text):
         last_spoken_time = current_time
         last_spoken_text = text
 
-# Start the speech worker thread
+# faz falar
 speech_thread = Thread(target=speak_worker, daemon=True)
 speech_thread.start()
 
-# Load model and initialize video capture
+# Instancia o modelo de captura de imagem
 model_dict = pickle.load(open('./model.p', 'rb'))
 model = model_dict['model']
 
 cap = cv2.VideoCapture(0)
+
+# Configurações da imagem, para ser em fullScreen
+cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
+cv2.setWindowProperty('frame', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -83,10 +86,10 @@ mp_drawing_styles = mp.solutions.drawing_styles
 
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.5, max_num_hands=2)
 
-# palavras que serão detectadas e comparadas de acordo com a ordem
-labels_dict = {0: 'Oi', 1: 'Meu', 2: 'Nome', 3:'Matheus', 4:'Faz o L'}
+# Palavras que serão detectadas e comparadas de acordo com a ordem
+labels_dict = {0: 'Oi', 1: 'Meu', 2: 'Nome', 3: 'Matheus', 4: 'Faz o L'}
 
-# Create more natural speaking phrases in Portuguese
+# Cria uma lista de palavras em caso de mais de 1 palavra for detectada em pouco tempo
 def format_speech_text(detected_signs):
     if len(detected_signs) == 1:
         return f"{detected_signs[0]}"
@@ -111,7 +114,7 @@ try:
 
         if results.multi_hand_landmarks:
             for hand_idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
-                # Draw landmarks
+                # Mostra as landMarks
                 mp_drawing.draw_landmarks(
                     frame,
                     hand_landmarks,
@@ -119,38 +122,38 @@ try:
                     mp_drawing_styles.get_default_hand_landmarks_style(),
                     mp_drawing_styles.get_default_hand_connections_style())
 
-                # Reset data collection for each hand
+                # Reseta os dados para trocar o sinal
                 data_aux = []
                 x_ = []
                 y_ = []
 
-                # Collect coordinates
+                # Coleta as coordenadas das LandMarks
                 for i in range(len(hand_landmarks.landmark)):
                     x = hand_landmarks.landmark[i].x
                     y = hand_landmarks.landmark[i].y
                     x_.append(x)
                     y_.append(y)
 
-                # Calculate normalized coordinates
+                # Calcula a media delas 
                 for i in range(len(hand_landmarks.landmark)):
                     x = hand_landmarks.landmark[i].x
                     y = hand_landmarks.landmark[i].y
                     data_aux.append(x - min(x_))
                     data_aux.append(y - min(y_))
 
-                # Calculate bounding box
+                # Calcula a margem de erro
                 x1 = int(min(x_) * W) - 10
                 y1 = int(min(y_) * H) - 10
                 x2 = int(max(x_) * W) - 10
                 y2 = int(max(y_) * H) - 10
 
                 try:
-                    # Make prediction
+                    # tenta prever qual o sinal está sendo feito antes que seja totalmente feito
                     prediction = model.predict([np.asarray(data_aux)])
                     predicted_character = labels_dict[int(prediction[0])]
                     detected_signs.append(predicted_character)
 
-                    # Draw bounding box and label
+                    # Desenha o quadrado na mão e a palavra acima dele
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
                     cv2.putText(frame, predicted_character, (x1, y1 - 10), 
                                cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 0, 0), 3,
@@ -159,18 +162,18 @@ try:
                     print(f"Erro de previsão para mão {hand_idx}: {str(e)}")
                     continue
 
-            # Format and queue speech text
+            # Formatação do texto
             if detected_signs:
                 speech_text = format_speech_text(detected_signs)
                 speak_text(speech_text)
 
-        # Show frame
+        # Mostra a camera
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
 finally:
-    # Cleanup
+    # Finaliza o codigo e as janelas e programas abertos
     speech_thread_running = False
     speech_thread.join(timeout=1)
     cap.release()
