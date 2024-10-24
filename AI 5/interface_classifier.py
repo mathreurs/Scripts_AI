@@ -35,7 +35,7 @@ speech_queue = Queue()
 last_spoken_time = time.time()
 last_spoken_text = ""
 
-# Flag to control the speech thread
+# Verifica se a voz já está falando
 speech_thread_running = True
 
 def speak_worker():
@@ -46,7 +46,7 @@ def speak_worker():
     while speech_thread_running:
         try:
             text = speech_queue.get(timeout=1)
-            # Add slight pause between words for better clarity
+            # Adiciona uma pausa entre as palavras detectadas
             text_with_pauses = " ... ".join(text.split())
             engine.say(text_with_pauses)
             engine.runAndWait()
