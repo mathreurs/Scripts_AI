@@ -1,11 +1,11 @@
-import mediapipe as mp
-import cv2
-import numpy as np
-import pickle
-import pyttsx3
-import time
-from threading import Thread
-from queue import Queue
+import mediapipe as mp # Analisar as mãos que serão capturadas
+import cv2 # Captura imagens da camera
+import numpy as np # faz os calculos de média e de margem de erro nas análises da imagem
+import pickle # formato de arquivo onde os dados são salvos  e analizados
+import pyttsx3 # Voz que fala qual sinal está sendo analizado
+import time # contagem de tempo entre a fala e a analize das imagens
+from threading import Thread # Executar a voz enquanto roda as imagens n tela
+from queue import Queue # lista de sinais que foram analizados recentemente
 
 # Inicializa a varivel que irá controlar a voz
 engine = pyttsx3.init()
@@ -35,18 +35,18 @@ speech_queue = Queue()
 last_spoken_time = time.time()
 last_spoken_text = ""
 
-# Flag to control the speech thread
+# Verifica se a voz já está falando
 speech_thread_running = True
 
 def speak_worker():
-    """
-    Função que é executada em uma parte separada para converter texto em fala
-    """
+
+    # Função que é executada em uma parte separada para converter texto em fala
+
     global speech_thread_running
     while speech_thread_running:
         try:
             text = speech_queue.get(timeout=1)
-            # Add slight pause between words for better clarity
+            # Adiciona uma pausa entre as palavras detectadas
             text_with_pauses = " ... ".join(text.split())
             engine.say(text_with_pauses)
             engine.runAndWait()
@@ -55,9 +55,9 @@ def speak_worker():
             continue
 
 def speak_text(text):
-    """
-    Função que adiciona texto a lista de fala
-    """
+
+    # Função que adiciona texto a lista de fala
+
     global last_spoken_time, last_spoken_text
     current_time = time.time()
     
@@ -100,7 +100,7 @@ def format_speech_text(detected_signs):
         return f"{signs_text}"
     return ""
 
-try:
+try: # Inicializa a analize da camera e a interface 
     while True:
         ret, frame = cap.read()
         if not ret:
