@@ -26,7 +26,7 @@ else:
     print("Aviso: Voz em português não encontrada. Usando voz padrão.")
 
 # Otimiza a voz
-engine.setProperty('rate', 200)      # Ajuste de velocidade de fala
+engine.setProperty('rate', 225)      # Ajuste de velocidade de fala
 engine.setProperty('volume', 1)      # Volume
 engine.setProperty('pitch', 150)     # Ajuste para tornar fala mais clara
 
