@@ -171,7 +171,6 @@ try: # Inicializa a analize da camera e a interface
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-
 finally:
     # Finaliza o codigo e as janelas e programas abertos
     speech_thread_running = False
