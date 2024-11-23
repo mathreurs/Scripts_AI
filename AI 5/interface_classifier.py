@@ -87,7 +87,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.5, max_num_hands=2)
 
 # Palavras que serão detectadas e comparadas de acordo com a ordem
-labels_dict = {0: 'Oi', 1: 'Meu', 2: 'Nome', 3: 'Matheus', 4: 'Faz o L'}
+labels_dict = {0: 'Oi', 1: 'Meu', 2: 'Nome', 3: 'Matheus'}
 
 # Cria uma lista de palavras em caso de mais de 1 palavra for detectada em pouco tempo
 def format_speech_text(detected_signs):
